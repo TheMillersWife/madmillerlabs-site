@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mad Miller Labs</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Epilogue:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --ink: #0f0f0e;
+    --ink2: #3d3d3a;
+    --ink3: #6b6b66;
+    --surface: #0f0f0e;
+    --surface2: #1a1a18;
+    --surface3: #222220;
+    --border: rgba(255,255,255,0.08);
+    --border2: rgba(255,255,255,0.14);
+    --accent: #4ade9a;
+    --accent-dim: rgba(74,222,154,0.12);
+    --accent-text: #2bb876;
+    --amber: #f0a043;
+    --amber-dim: rgba(240,160,67,0.1);
+    --mono: 'DM Mono', monospace;
+    --serif: 'DM Serif Display', serif;
+    --sans: 'Epilogue', sans-serif;
+    --text: rgba(255,255,255,0.88);
+    --text2: rgba(255,255,255,0.5);
+    --text3: rgba(255,255,255,0.28);
+  }
+  body {
+    font-family: var(--sans);
+    background: var(--surface);
+    color: var(--text);
+    line-height: 1.6;
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+  }
+  nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 48px;
+    height: 60px;
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-logo {
+    font-family: var(--mono);
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    color: var(--accent);
+    text-decoration: none;
+  }
+  .nav-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text3);
+    letter-spacing: 0.06em;
+  }
+  .status-dot {
+    width: 6px; height: 6px;
+    background: var(--accent);
+    border-radius: 50%;
+    animation: pulse 2.5s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.35; }
+  }
+
+  .hero {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 96px 48px 80px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    align-items: center;
+  }
+  .hero-eyebrow {
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+  .hero h1 {
+    font-family: var(--serif);
+    font-size: 60px;
+    line-height: 1.05;
+    font-weight: 400;
+    color: #fff;
+    margin-bottom: 24px;
+  }
+  .hero h1 em { font-style: italic; color: var(--accent); }
+  .hero-desc {
+    font-size: 16px;
+    line-height: 1.8;
+    color: var(--text2);
+    font-weight: 300;
+    max-width: 420px;
+  }
+  .hero-right {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .spec-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 16px 24px;
+    background: var(--surface2);
+    gap: 16px;
+  }
+  .spec-label {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text3);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .spec-value {
+    font-family: var(--mono);
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text);
+    text-align: right;
+  }
+  .spec-value.green { color: var(--accent); }
+
+  hr { border: none; border-top: 1px solid var(--border); }
+
+  .section { max-width: 1100px; margin: 0 auto; padding: 72px 48px; }
+  .section-label {
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text3);
+    margin-bottom: 40px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  .arch-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 32px;
+  }
+  .arch-card {
+    background: var(--surface2);
+    padding: 28px 24px;
+    transition: background 0.2s;
+  }
+  .arch-card:hover { background: var(--surface3); }
+  .arch-num {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text3);
+    letter-spacing: 0.1em;
+    margin-bottom: 16px;
+  }
+  .arch-card h3 {
+    font-size: 14px;
+    font-weight: 500;
+    color: #fff;
+    margin-bottom: 8px;
+    letter-spacing: 0.01em;
+  }
+  .arch-card p {
+    font-size: 12px;
+    line-height: 1.65;
+    color: var(--text2);
+    font-weight: 300;
+  }
+
+  .vlan-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .vlan-row {
+    display: grid;
+    grid-template-columns: 60px 110px 1fr auto;
+    align-items: center;
+    gap: 16px;
+    padding: 14px 20px;
+    background: var(--surface2);
+    font-size: 13px;
+    transition: background 0.15s;
+  }
+  .vlan-row:hover { background: var(--surface3); }
+  .vlan-id {
+    font-family: var(--mono);
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--accent);
+  }
+  .vlan-subnet {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text3);
+  }
+  .vlan-name { font-size: 13px; color: var(--text); }
+  .vlan-badge {
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 500;
+    padding: 3px 8px;
+    border-radius: 3px;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+  }
+  .badge-mgmt { background: rgba(74,222,154,0.12); color: var(--accent); }
+  .badge-forest { background: rgba(99,149,255,0.12); color: #6395ff; }
+  .badge-app { background: rgba(240,160,67,0.12); color: var(--amber); }
+  .badge-sec { background: rgba(220,80,80,0.12); color: #dc5050; }
+  .badge-vpn { background: rgba(180,120,240,0.12); color: #b478f0; }
+
+  .stack-list {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .stack-item {
+    background: var(--surface2);
+    padding: 20px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    transition: background 0.2s;
+  }
+  .stack-item:hover { background: var(--surface3); }
+  .stack-category {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text3);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .stack-name { font-size: 14px; font-weight: 500; color: var(--text); }
+  .stack-detail { font-size: 12px; color: var(--text2); font-weight: 300; }
+
+  .team-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+  .team-card {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 36px;
+    background: var(--surface2);
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+  .team-card:hover { border-color: var(--border2); }
+  .team-card.live { border-color: rgba(74,222,154,0.3); }
+  .team-card.live:hover { border-color: rgba(74,222,154,0.5); }
+  .team-card.pending { opacity: 0.7; }
+  .card-badge {
+    position: absolute;
+    top: 20px; right: 20px;
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 500;
+    padding: 4px 10px;
+    border-radius: 3px;
+    letter-spacing: 0.06em;
+  }
+  .card-badge.live { background: var(--accent-dim); color: var(--accent); }
+  .card-badge.soon { background: var(--amber-dim); color: var(--amber); }
+  .team-name {
+    font-family: var(--serif);
+    font-size: 32px;
+    font-weight: 400;
+    color: #fff;
+    margin-bottom: 6px;
+    line-height: 1.1;
+  }
+  .team-role {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text3);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+  .team-domain {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--accent-text);
+    margin-bottom: 16px;
+  }
+  .team-desc {
+    font-size: 14px;
+    line-height: 1.75;
+    color: var(--text2);
+    font-weight: 300;
+    margin-bottom: 28px;
+  }
+  .team-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--accent);
+    text-decoration: none;
+    font-family: var(--mono);
+    letter-spacing: 0.04em;
+    transition: opacity 0.2s;
+  }
+  .team-link:hover { opacity: 0.7; }
+  .team-link-disabled {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text3);
+    font-family: var(--mono);
+    letter-spacing: 0.04em;
+    cursor: default;
+  }
+
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 32px 48px;
+    max-width: 1100px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  .footer-id {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--text3);
+    letter-spacing: 0.06em;
+  }
+  .footer-links { display: flex; gap: 24px; }
+  .footer-links a {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--text3);
+    text-decoration: none;
+    letter-spacing: 0.04em;
+    transition: color 0.2s;
+  }
+  .footer-links a:hover { color: var(--text); }
+
+  @media (max-width: 768px) {
+    nav { padding: 0 24px; }
+    .hero { grid-template-columns: 1fr; padding: 60px 24px; }
+    .hero h1 { font-size: 44px; }
+    .hero-right { display: none; }
+    .section { padding: 56px 24px; }
+    .arch-grid { grid-template-columns: 1fr 1fr; }
+    .vlan-grid { grid-template-columns: 1fr; }
+    .stack-list { grid-template-columns: 1fr 1fr; }
+    .team-grid { grid-template-columns: 1fr; }
+    footer { padding: 32px 24px; flex-direction: column; align-items: flex-start; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="#">MML</a>
+  <div class="nav-status">
+    <div class="status-dot"></div>
+    cluster online &mdash; mml-cl01
+  </div>
+</nav>
+
+<div style="max-width:1100px;margin:0 auto;padding:0 48px;">
+  <div class="hero" style="padding:96px 0 80px;">
+    <div>
+      <div class="hero-eyebrow">Home Lab / Enterprise Simulation</div>
+      <h1>Mad Miller<br><em>Labs.</em></h1>
+      <p class="hero-desc">A production-grade enterprise merger simulation built in a home lab. Two independent Active Directory forests, purpose-built networking, and a full security stack &mdash; designed to demonstrate real infrastructure skills at every layer.</p>
+    </div>
+    <div class="hero-right">
+      <div class="spec-row"><span class="spec-label">Compute</span><span class="spec-value">Dell PowerEdge R640</span></div>
+      <div class="spec-row"><span class="spec-label">RAM</span><span class="spec-value green">384 GB</span></div>
+      <div class="spec-row"><span class="spec-label">Threads</span><span class="spec-value">80 (dual Xeon)</span></div>
+      <div class="spec-row"><span class="spec-label">Hypervisor</span><span class="spec-value">Nutanix CE 6.8.1 / AHV</span></div>
+      <div class="spec-row"><span class="spec-label">Firewall</span><span class="spec-value">pfSense 2.8.1</span></div>
+      <div class="spec-row"><span class="spec-label">Switch</span><span class="spec-value">Cisco Catalyst 2960X</span></div>
+      <div class="spec-row"><span class="spec-label">VLANs</span><span class="spec-value green">13 segments</span></div>
+      <div class="spec-row"><span class="spec-label">Forests</span><span class="spec-value green">2 (merger simulation)</span></div>
+    </div>
+  </div>
+</div>
+
+<hr>
+
+<div class="section">
+  <div class="section-label">Architecture</div>
+  <div class="arch-grid">
+    <div class="arch-card">
+      <div class="arch-num">01 / COMPUTE</div>
+      <h3>Nutanix HCI</h3>
+      <p>Nutanix CE 6.8.1 on AHV. Single-node cluster with full Prism Element management, CVM, and AHV host. Mirrors the production Nutanix environment at KKI.</p>
+    </div>
+    <div class="arch-card">
+      <div class="arch-num">02 / IDENTITY</div>
+      <h3>Dual AD forests</h3>
+      <p>Forest A (madmillerlabs.com) and Forest B (megacorplab.com) administered independently to simulate a pre-merger state. Tiered account model, gMSA, break-glass procedures.</p>
+    </div>
+    <div class="arch-card">
+      <div class="arch-num">03 / NETWORK</div>
+      <h3>Segmented fabric</h3>
+      <p>13 VLANs across management, identity, app, security, VPN, and red team segments. Explicit inter-VLAN ACLs on pfSense. DHCP relay, split-brain DNS, OpenVPN with DDNS.</p>
+    </div>
+    <div class="arch-card">
+      <div class="arch-num">04 / SECURITY</div>
+      <h3>Defense-in-depth</h3>
+      <p>Wazuh SIEM, Suricata IDS, Velociraptor EDR, Sysmon. PAW jumpbox with Credential Guard. Break-glass accounts with automated Wazuh alerts on use.</p>
+    </div>
+  </div>
+</div>
+
+<hr>
+
+<div class="section">
+  <div class="section-label">Network segmentation</div>
+  <div class="vlan-grid">
+    <div class="vlan-row"><span class="vlan-id">77</span><span class="vlan-subnet">172.19.77.0/24</span><span class="vlan-name">Management</span><span class="vlan-badge badge-mgmt">MGMT</span></div>
+    <div class="vlan-row"><span class="vlan-id">10</span><span class="vlan-subnet">172.19.10.0/24</span><span class="vlan-name">Forest A &mdash; DCs</span><span class="vlan-badge badge-forest">FOREST A</span></div>
+    <div class="vlan-row"><span class="vlan-id">11</span><span class="vlan-subnet">172.19.11.0/24</span><span class="vlan-name">Forest A &mdash; Users</span><span class="vlan-badge badge-forest">FOREST A</span></div>
+    <div class="vlan-row"><span class="vlan-id">12</span><span class="vlan-subnet">172.19.12.0/24</span><span class="vlan-name">Forest A &mdash; Servers</span><span class="vlan-badge badge-forest">FOREST A</span></div>
+    <div class="vlan-row"><span class="vlan-id">20</span><span class="vlan-subnet">172.19.20.0/24</span><span class="vlan-name">Forest B &mdash; DCs</span><span class="vlan-badge badge-forest">FOREST B</span></div>
+    <div class="vlan-row"><span class="vlan-id">21</span><span class="vlan-subnet">172.19.21.0/24</span><span class="vlan-name">Forest B &mdash; Users</span><span class="vlan-badge badge-forest">FOREST B</span></div>
+    <div class="vlan-row"><span class="vlan-id">22</span><span class="vlan-subnet">172.19.22.0/24</span><span class="vlan-name">Forest B &mdash; Servers</span><span class="vlan-badge badge-forest">FOREST B</span></div>
+    <div class="vlan-row"><span class="vlan-id">30</span><span class="vlan-subnet">172.19.30.0/24</span><span class="vlan-name">Cross-forest trust</span><span class="vlan-badge badge-forest">TRUST</span></div>
+    <div class="vlan-row"><span class="vlan-id">40</span><span class="vlan-subnet">172.19.40.0/24</span><span class="vlan-name">App Servers</span><span class="vlan-badge badge-app">APP</span></div>
+    <div class="vlan-row"><span class="vlan-id">50</span><span class="vlan-subnet">172.19.50.0/24</span><span class="vlan-name">Security (Wazuh)</span><span class="vlan-badge badge-sec">SEC</span></div>
+    <div class="vlan-row"><span class="vlan-id">60</span><span class="vlan-subnet">172.19.60.0/24</span><span class="vlan-name">Red Team</span><span class="vlan-badge badge-sec">RED</span></div>
+    <div class="vlan-row"><span class="vlan-id">98</span><span class="vlan-subnet">172.19.98.0/24</span><span class="vlan-name">VPN pool</span><span class="vlan-badge badge-vpn">VPN</span></div>
+  </div>
+</div>
+
+<hr>
+
+<div class="section">
+  <div class="section-label">Full stack</div>
+  <div class="stack-list">
+    <div class="stack-item"><span class="stack-category">Hypervisor</span><span class="stack-name">Nutanix CE 6.8.1</span><span class="stack-detail">AHV, Prism Element, CVM</span></div>
+    <div class="stack-item"><span class="stack-category">Firewall</span><span class="stack-name">pfSense 2.8.1</span><span class="stack-detail">Advantech FWA-ASP1012</span></div>
+    <div class="stack-item"><span class="stack-category">Switch</span><span class="stack-name">Cisco Catalyst 2960X</span><span class="stack-detail">IOS 15.2(7)E2, 48-port</span></div>
+    <div class="stack-item"><span class="stack-category">OS</span><span class="stack-name">Windows Server 2025</span><span class="stack-detail">DC, DNS, DHCP, PKI</span></div>
+    <div class="stack-item"><span class="stack-category">Identity</span><span class="stack-name">Active Directory</span><span class="stack-detail">Dual forest, tiered accounts</span></div>
+    <div class="stack-item"><span class="stack-category">Remote access</span><span class="stack-name">OpenVPN</span><span class="stack-detail">Cert-based, DDNS via Cloudflare</span></div>
+    <div class="stack-item"><span class="stack-category">SIEM</span><span class="stack-name">Wazuh</span><span class="stack-detail">Ubuntu 22.04, VLAN 50</span></div>
+    <div class="stack-item"><span class="stack-category">IDS</span><span class="stack-name">Suricata</span><span class="stack-detail">pfSense inline, all VLANs</span></div>
+    <div class="stack-item"><span class="stack-category">EDR</span><span class="stack-name">Velociraptor</span><span class="stack-detail">Endpoint telemetry + Sysmon</span></div>
+    <div class="stack-item"><span class="stack-category">DNS / CDN</span><span class="stack-name">Cloudflare</span><span class="stack-detail">Auth DNS, Zero Trust, Pages</span></div>
+    <div class="stack-item"><span class="stack-category">Endpoint</span><span class="stack-name">Windows 11 Enterprise</span><span class="stack-detail">PAW, Credential Guard, vTPM</span></div>
+    <div class="stack-item"><span class="stack-category">Automation</span><span class="stack-name">PowerShell</span><span class="stack-detail">OU structure, account provisioning</span></div>
+  </div>
+</div>
+
+<hr>
+
+<div class="section">
+  <div class="section-label">Engineers</div>
+  <div class="team-grid">
+    <div class="team-card live">
+      <span class="card-badge live">Live</span>
+      <div class="team-name">Nicole Miller</div>
+      <div class="team-role">Systems Engineering Manager</div>
+      <div class="team-domain">madmillerlabs.com &mdash; Forest A</div>
+      <p class="team-desc">14+ years in enterprise infrastructure. Leads Forest A design, core networking, firewall, and security stack. M.S. IT Management, WGU 2026. CISSP in progress.</p>
+      <a class="team-link" href="/nicole">View portfolio &rarr;</a>
+    </div>
+    <div class="team-card pending">
+      <span class="card-badge soon">Coming soon</span>
+      <div class="team-name">John Miller</div>
+      <div class="team-role">Systems Administrator</div>
+      <div class="team-domain">megacorplab.com &mdash; Forest B</div>
+      <p class="team-desc">20 years in IT operations, healthcare systems, and desktop infrastructure. Administers Forest B independently to preserve merger simulation realism.</p>
+      <span class="team-link-disabled">Portfolio in progress &mdash;</span>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <span class="footer-id">madmillerlabs.com &mdash; home lab infrastructure project</span>
+  <div class="footer-links">
+    <a href="/nicole">Nicole</a>
+    <a href="https://www.linkedin.com/in/nicole-miller-msitm">LinkedIn</a>
+    <a href="https://github.com/madmillerlabs-site">GitHub</a>
+  </div>
+</footer>
+
+</body>
+</html>
