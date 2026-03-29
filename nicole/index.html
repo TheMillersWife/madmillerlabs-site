@@ -82,13 +82,10 @@
   .lab-stack { display: flex; flex-wrap: wrap; gap: 8px; }
   .stack-tag { font-family: var(--mono); font-size: 11px; font-weight: 500; padding: 5px 12px; background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.5); border: 1px solid rgba(255,255,255,0.08); border-radius: 3px; letter-spacing: 0.04em; }
 
-  .exp-grid { display: grid; grid-template-columns: 160px 1fr; gap: 40px; margin-top: 48px; }
-  .exp-nav { position: sticky; top: 80px; height: fit-content; }
-  .exp-nav-item { display: block; padding: 10px 0 10px 12px; font-size: 12px; font-weight: 400; color: var(--ink3); text-decoration: none; border-left: 2px solid var(--border); transition: color 0.2s, border-color 0.2s; cursor: pointer; line-height: 1.4; }
-  .exp-nav-item.active, .exp-nav-item:hover { color: var(--accent); border-color: var(--accent); }
-  .exp-entries { display: flex; flex-direction: column; gap: 48px; }
-  .exp-entry { padding-bottom: 48px; border-bottom: 1px solid var(--border); }
-  .exp-entry:last-child { border-bottom: none; padding-bottom: 0; }
+  .exp-entries { display: flex; flex-direction: column; gap: 0; margin-top: 48px; }
+  .exp-entry { padding: 36px 0 36px 24px; border-bottom: 1px solid var(--border); border-left: 2px solid var(--border); margin-bottom: 0; transition: border-color 0.2s; }
+  .exp-entry:hover { border-left-color: var(--accent); }
+  .exp-entry:last-child { border-bottom: none; }
   .exp-meta { display: flex; align-items: baseline; gap: 16px; margin-bottom: 6px; flex-wrap: wrap; }
   .exp-title { font-size: 17px; font-weight: 500; color: var(--ink); letter-spacing: -0.01em; }
   .exp-period { font-family: var(--mono); font-size: 11px; color: var(--ink3); letter-spacing: 0.06em; }
@@ -137,10 +134,6 @@
     .lab-inner { padding: 60px 24px; }
     .lab-header { grid-template-columns: 1fr; gap: 24px; }
     .lab-grid { grid-template-columns: 1fr; }
-    .exp-grid { grid-template-columns: 1fr; }
-    .exp-nav { position: static; display: flex; flex-wrap: wrap; gap: 4px; }
-    .exp-nav-item { border-left: none; border-bottom: 2px solid var(--border); padding: 6px 12px; }
-    .exp-nav-item.active, .exp-nav-item:hover { border-bottom-color: var(--accent); }
     .certs-grid { grid-template-columns: 1fr; }
     .writing-grid { grid-template-columns: 1fr; }
     footer { padding: 40px 24px; }
@@ -310,15 +303,7 @@
 
 <section id="experience">
   <div class="section-label">Experience</div>
-  <div class="exp-grid">
-    <nav class="exp-nav" aria-label="Experience navigation">
-      <a class="exp-nav-item active" onclick="setActive(this)" href="#kki">KKI</a>
-      <a class="exp-nav-item" onclick="setActive(this)" href="#judiciary-mgr">Judiciary — Mgr</a>
-      <a class="exp-nav-item" onclick="setActive(this)" href="#judiciary-euc">Judiciary — EUC</a>
-      <a class="exp-nav-item" onclick="setActive(this)" href="#judiciary-sa">Judiciary — SA</a>
-      <a class="exp-nav-item" onclick="setActive(this)" href="#earlier">Earlier</a>
-    </nav>
-    <div class="exp-entries">
+  <div class="exp-entries">
 
       <div class="exp-entry" id="kki">
         <div class="exp-meta">
@@ -388,7 +373,6 @@
         </ul>
       </div>
 
-    </div>
   </div>
 </section>
 
