@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VLAN 99 is reserved in Nutanix CE, and it will ruin your day silently — Nicole Miller</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Epilogue:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --ink: #0f0f0e;
+    --ink2: #3d3d3a;
+    --ink3: #6b6b66;
+    --surface: #faf9f6;
+    --surface2: #f0ede6;
+    --border: rgba(0,0,0,0.1);
+    --accent: #1a3f2c;
+    --accent-light: #e8f0ec;
+    --mono: 'DM Mono', monospace;
+    --serif: 'DM Serif Display', serif;
+    --sans: 'Epilogue', sans-serif;
+  }
+  body { font-family: var(--sans); background: var(--surface); color: var(--ink); line-height: 1.6; font-size: 16px; -webkit-font-smoothing: antialiased; }
+
+  nav { position: sticky; top: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; padding: 0 48px; height: 60px; background: var(--surface); border-bottom: 1px solid var(--border); }
+  .nav-logo { font-family: var(--mono); font-size: 13px; font-weight: 500; letter-spacing: 0.04em; color: var(--ink); text-decoration: none; }
+  .nav-back { font-family: var(--mono); font-size: 12px; color: var(--ink3); text-decoration: none; letter-spacing: 0.04em; transition: color 0.2s; }
+  .nav-back:hover { color: var(--accent); }
+
+  .post-wrap { max-width: 680px; margin: 0 auto; padding: 72px 48px 120px; }
+
+  .post-meta { margin-bottom: 40px; }
+  .post-tag { display: inline-block; font-family: var(--mono); font-size: 10px; font-weight: 500; padding: 4px 12px; border-radius: 3px; letter-spacing: 0.06em; background: var(--accent-light); color: var(--accent); margin-bottom: 20px; }
+  .post-title { font-family: var(--serif); font-size: 48px; line-height: 1.08; font-weight: 400; color: var(--ink); margin-bottom: 20px; }
+  .post-byline { display: flex; align-items: center; gap: 16px; font-family: var(--mono); font-size: 11px; color: var(--ink3); letter-spacing: 0.06em; }
+  .post-byline::before { content: ''; display: block; width: 24px; height: 1px; background: var(--border); }
+
+  .post-body { font-size: 17px; line-height: 1.85; color: var(--ink2); font-weight: 300; }
+  .post-body p { margin-bottom: 1.5em; }
+  .post-body p:last-child { margin-bottom: 0; }
+
+  .post-body h2 {
+    font-family: var(--serif);
+    font-size: 28px;
+    font-weight: 400;
+    color: var(--ink);
+    margin: 2.5em 0 0.75em;
+    line-height: 1.2;
+  }
+
+  .post-body strong { font-weight: 500; color: var(--ink); }
+
+  .post-body hr {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 2.5em 0;
+  }
+
+  .post-body code {
+    font-family: var(--mono);
+    font-size: 14px;
+    background: var(--surface2);
+    padding: 2px 7px;
+    border-radius: 3px;
+    color: var(--ink);
+  }
+
+  .post-body ul {
+    list-style: none;
+    margin: 1em 0 1.5em;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding-left: 0;
+  }
+
+  .post-body ul li {
+    padding-left: 20px;
+    position: relative;
+  }
+
+  .post-body ul li::before {
+    content: '—';
+    position: absolute;
+    left: 0;
+    color: var(--ink3);
+  }
+
+  .post-callout {
+    background: var(--surface2);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 6px 6px 0;
+    padding: 20px 24px;
+    margin: 2em 0;
+    font-size: 15px;
+    line-height: 1.75;
+  }
+
+  .post-callout strong { font-weight: 500; color: var(--ink); display: block; margin-bottom: 8px; font-family: var(--mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; }
+
+  .post-footer { margin-top: 64px; padding-top: 32px; border-top: 1px solid var(--border); }
+  .post-footer-label { font-family: var(--mono); font-size: 11px; color: var(--ink3); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 16px; }
+  .post-footer-link { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; color: var(--accent); text-decoration: none; font-weight: 500; transition: opacity 0.2s; }
+  .post-footer-link:hover { opacity: 0.7; }
+
+  @media (max-width: 768px) {
+    nav { padding: 0 24px; }
+    .post-wrap { padding: 48px 24px 80px; }
+    .post-title { font-size: 34px; }
+    .post-body { font-size: 16px; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="/nicole">nm / systems engineering</a>
+  <a class="nav-back" href="/nicole#writing">&larr; Writing</a>
+</nav>
+
+<div class="post-wrap">
+
+  <div class="post-meta">
+    <div class="post-tag">Gotcha</div>
+    <h1 class="post-title">VLAN 99 is reserved in Nutanix CE, and it will ruin your day silently</h1>
+    <div class="post-byline">
+      <span>Nicole Miller</span>
+      <span>&middot;</span>
+      <span>Mad Miller Labs</span>
+    </div>
+  </div>
+
+  <div class="post-body">
+
+    <p>There&rsquo;s a particular kind of frustration in troubleshooting a problem that <em>looks</em> like it&rsquo;s working.</p>
+
+    <p>I was deep into building out Mad Miller Labs (my home lab enterprise merger simulation) and I&rsquo;d just finished configuring my management VLAN. Devices were getting IP addresses. I could ping in. Everything looked fine, right up until I tried to actually <em>do</em> anything from a guest VM. No outbound traffic. No ARP resolution. MAC address nowhere to be found on the switch.</p>
+
+    <p>RX was fine. TX was zero. Every time.</p>
+
+    <hr>
+
+    <h2>What was happening</h2>
+
+    <p>My management network was sitting on VLAN 99. Seemed like a reasonable choice at the time. I&rsquo;d used it in prior environments, it was clean, nothing else was on it. I&rsquo;d assigned it to my Nutanix AHV cluster, configured the switch trunk, set up pfSense. Everything looked right on paper.</p>
+
+    <p>What I didn&rsquo;t know (and what Nutanix doesn&rsquo;t exactly advertise prominently) is that <strong>AHV reserves VLAN 99 internally for CVM traffic</strong>. Not partially. Not sometimes. Completely. Guest VM transmit traffic on VLAN 99 is silently dropped by OVS (Open vSwitch) at the hypervisor layer before it ever hits the wire.</p>
+
+    <p>The insidious part is that receive works fine. So your VM gets an IP via DHCP, responds to pings from the physical network, looks healthy in every inbound direction. It just can&rsquo;t send anything out. TX stays at zero. The MAC never shows up in the switch CAM table. ARP never resolves from the VM&rsquo;s perspective.</p>
+
+    <p>It doesn&rsquo;t throw an error. It doesn&rsquo;t log anything obvious. It just&hellip; doesn&rsquo;t work.</p>
+
+    <hr>
+
+    <h2>How I found it</h2>
+
+    <p>My first instinct was the switch. I pulled up <code>show mac address-table</code> on the Catalyst 2960X and noticed the VM&rsquo;s MAC was just absent. Not on the wrong VLAN, not bouncing, just not there. That told me the frame was never making it out of the hypervisor.</p>
+
+    <p>The key clue came when I tested a physical device on a VLAN 99 access port. That worked perfectly. So the switch config was fine, pfSense was fine, the physical path was fine. The problem was isolated to guest VMs on AHV.</p>
+
+    <p>From there it was a quick trip through Nutanix documentation and community posts to find the answer: VLAN 99 is reserved. Has been for a while. It&rsquo;s just not something that comes up unless you happen to pick that number.</p>
+
+    <hr>
+
+    <h2>The fix</h2>
+
+    <p>Move off VLAN 99. That&rsquo;s it.</p>
+
+    <p>I migrated my management network to VLAN 77: updated the switch trunk config, reconfigured pfSense, reassigned VM network adapters, updated my IP scheme. Everything came up cleanly.</p>
+
+    <p>The migration itself took less than an hour. The troubleshooting that preceded it took considerably longer.</p>
+
+    <hr>
+
+    <h2>What to watch for</h2>
+
+    <div class="post-callout">
+      <strong>Symptom checklist</strong>
+      If you&rsquo;re on Nutanix CE with AHV and seeing this combination, check your VLAN number before anything else.
+    </div>
+
+    <ul>
+      <li>Guest VM receives traffic fine (DHCP works, inbound pings work)</li>
+      <li>Guest VM TX is always zero</li>
+      <li>VM MAC never appears in <code>show mac address-table</code></li>
+      <li>ARP never resolves from the VM side</li>
+      <li>Physical devices on the same VLAN ID work fine</li>
+    </ul>
+
+    <p>Nutanix uses VLAN 99 internally for CVM-to-AHV communication via OVS. It doesn&rsquo;t expose this as an error. It just quietly drops guest TX frames. Physical switch ports in VLAN 99 access mode are unaffected because that traffic never passes through OVS.</p>
+
+    <p>The fix takes five minutes. Finding it the first time takes considerably longer.</p>
+
+    <hr>
+
+    <p><em>This came up during the build-out of <a href="/" style="color:var(--accent);">Mad Miller Labs</a>, a home lab enterprise merger simulation running Nutanix CE 6.8.1 on a Dell PowerEdge R640. More posts from the build as the lab grows.</em></p>
+
+  </div>
+
+  <div class="post-footer">
+    <div class="post-footer-label">From the lab</div>
+    <a class="post-footer-link" href="/nicole#writing">&larr; Back to writing</a>
+  </div>
+
+</div>
+
+</body>
+</html>
