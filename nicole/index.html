@@ -104,7 +104,7 @@
   .cert-badge.active { background: var(--accent-light); color: var(--accent); }
   .cert-badge.progress { background: var(--amber-light); color: var(--amber); }
 
-  .writing-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 48px; }
+  .writing-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-top: 48px; }
   .writing-card { border: 1px solid var(--border); border-radius: 8px; padding: 28px; background: var(--surface); display: flex; flex-direction: column; gap: 12px; transition: border-color 0.2s, background 0.2s; text-decoration: none; color: inherit; }
   .writing-card:hover { border-color: rgba(0,0,0,0.2); background: #fff; }
   .writing-card.placeholder { opacity: 0.5; cursor: default; }
@@ -417,6 +417,15 @@
       </div>
       <div class="writing-title">VLAN 99 is reserved in Nutanix CE — and it will ruin your day silently</div>
       <div class="writing-excerpt">AHV reserves VLAN 99 internally for CVM traffic. Guest VMs on VLAN 99 receive packets fine but TX is silently dropped — zero bytes out, MAC never appears on the switch, ARP never resolves. Here's how I found it and what to do instead.</div>
+      <div class="writing-read">Read &rarr;</div>
+    </a>
+    <a class="writing-card" href="posts/ngt-virtio-double-tag.html">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <span class="writing-date">March 30, 2026</span>
+        <span class="writing-tag">Gotcha</span>
+      </div>
+      <div class="writing-title">NGT, VirtIO, and the double-tag problem</div>
+      <div class="writing-excerpt">Installing the VirtIO Ethernet driver manually instead of through NGT leaves VLAN tagging enabled at the OS level. AHV's OVS expects to apply the tag itself — double-tagged frames get silently dropped. Here's what happens and how to fix it.</div>
       <div class="writing-read">Read &rarr;</div>
     </a>
   </div>

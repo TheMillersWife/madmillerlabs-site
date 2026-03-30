@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NGT, VirtIO, and the double-tag problem — Nicole Miller</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Epilogue:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --ink: #0f0f0e;
+    --ink2: #3d3d3a;
+    --ink3: #6b6b66;
+    --surface: #faf9f6;
+    --surface2: #f0ede6;
+    --border: rgba(0,0,0,0.1);
+    --accent: #1a3f2c;
+    --accent-light: #e8f0ec;
+    --mono: 'DM Mono', monospace;
+    --serif: 'DM Serif Display', serif;
+    --sans: 'Epilogue', sans-serif;
+  }
+  body { font-family: var(--sans); background: var(--surface); color: var(--ink); line-height: 1.6; font-size: 16px; -webkit-font-smoothing: antialiased; }
+
+  nav { position: sticky; top: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; padding: 0 48px; height: 60px; background: var(--surface); border-bottom: 1px solid var(--border); }
+  .nav-logo { font-family: var(--mono); font-size: 13px; font-weight: 500; letter-spacing: 0.04em; color: var(--ink); text-decoration: none; }
+  .nav-back { font-family: var(--mono); font-size: 12px; color: var(--ink3); text-decoration: none; letter-spacing: 0.04em; transition: color 0.2s; }
+  .nav-back:hover { color: var(--accent); }
+
+  .post-wrap { max-width: 680px; margin: 0 auto; padding: 72px 48px 120px; }
+
+  .post-meta { margin-bottom: 40px; }
+  .post-tag { display: inline-block; font-family: var(--mono); font-size: 10px; font-weight: 500; padding: 4px 12px; border-radius: 3px; letter-spacing: 0.06em; background: var(--accent-light); color: var(--accent); margin-bottom: 20px; }
+  .post-title { font-family: var(--serif); font-size: 48px; line-height: 1.08; font-weight: 400; color: var(--ink); margin-bottom: 20px; }
+  .post-byline { display: flex; align-items: center; gap: 16px; font-family: var(--mono); font-size: 11px; color: var(--ink3); letter-spacing: 0.06em; }
+  .post-byline::before { content: ''; display: block; width: 24px; height: 1px; background: var(--border); }
+
+  .post-body { font-size: 17px; line-height: 1.85; color: var(--ink2); font-weight: 300; }
+  .post-body p { margin-bottom: 1.5em; }
+  .post-body p:last-child { margin-bottom: 0; }
+
+  .post-body h2 {
+    font-family: var(--serif);
+    font-size: 28px;
+    font-weight: 400;
+    color: var(--ink);
+    margin: 2.5em 0 0.75em;
+    line-height: 1.2;
+  }
+
+  .post-body strong { font-weight: 500; color: var(--ink); }
+
+  .post-body hr {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 2.5em 0;
+  }
+
+  .post-body code {
+    font-family: var(--mono);
+    font-size: 14px;
+    background: var(--surface2);
+    padding: 2px 7px;
+    border-radius: 3px;
+    color: var(--ink);
+  }
+
+  .post-body ul {
+    list-style: none;
+    margin: 1em 0 1.5em;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding-left: 0;
+  }
+
+  .post-body ul li {
+    padding-left: 20px;
+    position: relative;
+  }
+
+  .post-body ul li::before {
+    content: '—';
+    position: absolute;
+    left: 0;
+    color: var(--ink3);
+  }
+
+  .post-callout {
+    background: var(--surface2);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 6px 6px 0;
+    padding: 20px 24px;
+    margin: 2em 0;
+    font-size: 15px;
+    line-height: 1.75;
+  }
+
+  .post-callout strong { font-weight: 500; color: var(--ink); display: block; margin-bottom: 8px; font-family: var(--mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; }
+
+  .post-footer { margin-top: 64px; padding-top: 32px; border-top: 1px solid var(--border); }
+  .post-footer-label { font-family: var(--mono); font-size: 11px; color: var(--ink3); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 16px; }
+  .post-footer-link { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; color: var(--accent); text-decoration: none; font-weight: 500; transition: opacity 0.2s; }
+  .post-footer-link:hover { opacity: 0.7; }
+
+  @media (max-width: 768px) {
+    nav { padding: 0 24px; }
+    .post-wrap { padding: 48px 24px 80px; }
+    .post-title { font-size: 34px; }
+    .post-body { font-size: 16px; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="/nicole">nm / systems engineering</a>
+  <a class="nav-back" href="/nicole#writing">&larr; Writing</a>
+</nav>
+
+<div class="post-wrap">
+
+  <div class="post-meta">
+    <div class="post-tag">Gotcha</div>
+    <h1 class="post-title">NGT, VirtIO, and the double-tag problem</h1>
+    <div class="post-byline">
+      <span>Nicole Miller</span>
+      <span>&middot;</span>
+      <span>Mad Miller Labs</span>
+    </div>
+  </div>
+
+  <div class="post-body">
+
+    <p>Another day in the lab. After several hours standing up my first Domain Controller in a fresh Windows Server 2025 VM on Nutanix AHV, I ran into a networking problem I didn&rsquo;t expect to spend the rest of my afternoon on.</p>
+
+    <p>During the initial install, loading the VirtIO SCSI drivers off the Nutanix VirtIO ISO was expected. After the install, I noticed the NIC wasn&rsquo;t working either. Also expected. What I should have done at that point was install Nutanix Guest Tools (NGT), Nutanix&rsquo;s equivalent of VMware Tools, and moved on.</p>
+
+    <p>Instead, I had trouble getting NGT to mount in the moment, and in a lapse of patience, I manually installed the VirtIO Ethernet driver straight from the ISO. I configured the adapter with a static IP, subnet, and gateway, then ran a quick ping to the gateway. Destination host unreachable.</p>
+
+    <hr>
+
+    <h2>What followed</h2>
+
+    <p>The usual rabbit hole. Windows Firewall. Switch trunking. VLAN mismatches. I SSH&rsquo;d into everything I could reach and verified configs against my network docs, over and over. Nothing was wrong. Everything looked right on paper.</p>
+
+    <p>I eventually started looking at this differently. The VirtIO Ethernet driver is designed for KVM and QEMU environments, virtual routers and the like. It comes with <strong>VLAN tagging enabled by default at the OS level</strong>. That&rsquo;s not a problem in most environments, but Nutanix runs Open vSwitch (OVS) under the hood, and OVS has opinions about where VLAN tags come from.</p>
+
+    <p>When you attach a NIC to a VM in AHV, you assign it to a VLAN and OVS applies that tag as traffic exits the VM. If packets arrive at OVS already tagged, it can&rsquo;t match them to a rule. It just drops them. My VM was sending VLAN-tagged frames out, OVS was seeing double-tagged traffic, and the whole thing was getting silently discarded before it ever reached the wire.</p>
+
+    <p>I confirmed it by SSH&rsquo;ing into the AHV host and running an OVS trace while pinging the gateway. Packets were leaving the VM and getting dropped immediately, and the reason was right there in the output.</p>
+
+    <hr>
+
+    <h2>What NGT actually does</h2>
+
+    <p>This is the part I didn&rsquo;t know. When NGT installs the VirtIO Ethernet driver, it also disables VLAN tagging in the adapter&rsquo;s advanced properties. That&rsquo;s not incidental. It&rsquo;s specifically because AHV handles VLAN tagging at the hypervisor level, and leaving it enabled in the guest breaks things.</p>
+
+    <p>The fix, once I understood the problem, took about thirty seconds. Device Manager &rarr; Nutanix VirtIO Ethernet Adapter &rarr; Properties &rarr; Advanced &rarr; VLAN set to <strong>Disabled</strong>. Traffic came up immediately.</p>
+
+    <hr>
+
+    <h2>What to watch for</h2>
+
+    <div class="post-callout">
+      <strong>Symptom checklist</strong>
+      If you&rsquo;re on Nutanix CE with AHV and seeing this combination of symptoms, check your VLAN tagging setting before anything else.
+    </div>
+
+    <ul>
+      <li>VM gets a DHCP lease and inbound traffic works fine</li>
+      <li>TX is always zero, outbound traffic goes nowhere</li>
+      <li>VM MAC never appears in <code>show mac address-table</code></li>
+      <li>ARP never resolves from the VM&rsquo;s side</li>
+      <li>Physical devices on the same VLAN work without issue</li>
+      <li>VirtIO Ethernet driver was installed manually, not via NGT</li>
+    </ul>
+
+    <p>The direct fix: Device Manager &rarr; Nutanix VirtIO Ethernet Adapter &rarr; Properties &rarr; Advanced &rarr; set VLAN to <strong>Disabled</strong>. If you&rsquo;re building a template, install NGT before Sysprep so every clone gets the correct driver configuration automatically.</p>
+
+    <p>The good news is I learned quite a bit about the Nutanix networking stack and picked up a few <code>grep</code> tricks along the way. The bad news is I still haven&rsquo;t promoted the DC.</p>
+
+    <p>Maybe tomorrow.</p>
+
+    <hr>
+
+    <p><em>This came up during the build-out of <a href="/" style="color:var(--accent);">Mad Miller Labs</a>, a home lab enterprise merger simulation running Nutanix CE 6.8.1 on a Dell PowerEdge R640. More posts from the build as the lab grows.</em></p>
+
+  </div>
+
+  <div class="post-footer">
+    <div class="post-footer-label">From the lab</div>
+    <a class="post-footer-link" href="/nicole#writing">&larr; Back to writing</a>
+  </div>
+
+</div>
+
+</body>
+</html>
