@@ -4,6 +4,17 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>VLAN 99 is reserved in Nutanix CE, and it will ruin your day silently — Nicole Miller</title>
+<meta name="description" content="AHV reserves VLAN 99 internally for CVM traffic. Guest VMs receive packets fine but TX is silently dropped at the hypervisor — zero bytes out, MAC never on the switch, ARP never resolves.">
+<meta property="og:title" content="VLAN 99 is reserved in Nutanix CE, and it will ruin your day silently">
+<meta property="og:description" content="AHV reserves VLAN 99 internally for CVM traffic. Guest VMs receive packets fine but TX is silently dropped at the hypervisor — zero bytes out, MAC never on the switch, ARP never resolves.">
+<meta property="og:image" content="assets/vlan99.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="627">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="VLAN 99 is reserved in Nutanix CE, and it will ruin your day silently">
+<meta name="twitter:description" content="AHV reserves VLAN 99 internally for CVM traffic. Guest VMs receive packets fine but TX is silently dropped at the hypervisor — zero bytes out, MAC never on the switch, ARP never resolves.">
+<meta name="twitter:image" content="assets/vlan99.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Epilogue:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
