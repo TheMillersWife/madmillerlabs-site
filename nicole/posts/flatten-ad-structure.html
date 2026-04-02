@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Flattening AD OU structure for an Entra ID future — Nicole Miller</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Epilogue:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --ink: #0f0f0e;
+    --ink2: #3d3d3a;
+    --ink3: #6b6b66;
+    --surface: #faf9f6;
+    --surface2: #f0ede6;
+    --border: rgba(0,0,0,0.1);
+    --accent: #1a3f2c;
+    --accent-light: #e8f0ec;
+    --mono: 'DM Mono', monospace;
+    --serif: 'DM Serif Display', serif;
+    --sans: 'Epilogue', sans-serif;
+  }
+  body { font-family: var(--sans); background: var(--surface); color: var(--ink); line-height: 1.6; font-size: 16px; -webkit-font-smoothing: antialiased; }
+
+  nav { position: sticky; top: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; padding: 0 48px; height: 60px; background: var(--surface); border-bottom: 1px solid var(--border); }
+  .nav-logo { font-family: var(--mono); font-size: 13px; font-weight: 500; letter-spacing: 0.04em; color: var(--ink); text-decoration: none; }
+  .nav-back { font-family: var(--mono); font-size: 12px; color: var(--ink3); text-decoration: none; letter-spacing: 0.04em; transition: color 0.2s; }
+  .nav-back:hover { color: var(--accent); }
+
+  .post-wrap { max-width: 680px; margin: 0 auto; padding: 72px 48px 120px; }
+
+  .post-meta { margin-bottom: 40px; }
+  .post-tag { display: inline-block; font-family: var(--mono); font-size: 10px; font-weight: 500; padding: 4px 12px; border-radius: 3px; letter-spacing: 0.06em; background: var(--accent-light); color: var(--accent); margin-bottom: 20px; }
+  .post-title { font-family: var(--serif); font-size: 48px; line-height: 1.08; font-weight: 400; color: var(--ink); margin-bottom: 20px; }
+  .post-byline { display: flex; align-items: center; gap: 16px; font-family: var(--mono); font-size: 11px; color: var(--ink3); letter-spacing: 0.06em; }
+  .post-byline::before { content: ''; display: block; width: 24px; height: 1px; background: var(--border); }
+
+  .post-body { font-size: 17px; line-height: 1.85; color: var(--ink2); font-weight: 300; }
+  .post-body p { margin-bottom: 1.5em; }
+  .post-body p:last-child { margin-bottom: 0; }
+
+  .post-body h2 {
+    font-family: var(--serif);
+    font-size: 28px;
+    font-weight: 400;
+    color: var(--ink);
+    margin: 2.5em 0 0.75em;
+    line-height: 1.2;
+  }
+
+  .post-body strong { font-weight: 500; color: var(--ink); }
+
+  .post-body hr {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 2.5em 0;
+  }
+
+  .post-body code {
+    font-family: var(--mono);
+    font-size: 14px;
+    background: var(--surface2);
+    padding: 2px 7px;
+    border-radius: 3px;
+    color: var(--ink);
+  }
+
+  .post-body ul {
+    list-style: none;
+    margin: 1em 0 1.5em;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding-left: 0;
+  }
+
+  .post-body ul li {
+    padding-left: 20px;
+    position: relative;
+  }
+
+  .post-body ul li::before {
+    content: '—';
+    position: absolute;
+    left: 0;
+    color: var(--ink3);
+  }
+
+  .post-callout {
+    background: var(--surface2);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 6px 6px 0;
+    padding: 20px 24px;
+    margin: 2em 0;
+    font-size: 15px;
+    line-height: 1.75;
+  }
+
+  .post-callout strong { font-weight: 500; color: var(--ink); display: block; margin-bottom: 8px; font-family: var(--mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; }
+
+  /* SVG figure */
+  .post-figure {
+    margin: 2.5em 0;
+  }
+
+  .post-figure svg {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  .post-figure figcaption {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--ink3);
+    letter-spacing: 0.04em;
+    margin-top: 12px;
+    text-align: center;
+  }
+
+  /* Group naming tables */
+  .sg-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1.5em 0;
+    font-size: 14px;
+  }
+
+  .sg-table th {
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink3);
+    padding: 8px 12px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .sg-table td {
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border);
+    color: var(--ink2);
+    font-weight: 300;
+  }
+
+  .sg-table td:first-child {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--ink);
+  }
+
+  .sg-table tr:last-child td {
+    border-bottom: none;
+  }
+
+  /* SG examples */
+  .sg-examples {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin: 1.5em 0;
+  }
+
+  .sg-example {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--accent);
+    background: var(--accent-light);
+    padding: 8px 14px;
+    border-radius: 4px;
+    letter-spacing: 0.02em;
+  }
+
+  .post-footer { margin-top: 64px; padding-top: 32px; border-top: 1px solid var(--border); }
+  .post-footer-label { font-family: var(--mono); font-size: 11px; color: var(--ink3); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 16px; }
+  .post-footer-link { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; color: var(--accent); text-decoration: none; font-weight: 500; transition: opacity 0.2s; }
+  .post-footer-link:hover { opacity: 0.7; }
+
+  @media (max-width: 768px) {
+    nav { padding: 0 24px; }
+    .post-wrap { padding: 48px 24px 80px; }
+    .post-title { font-size: 34px; }
+    .post-body { font-size: 16px; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="/nicole">nm / systems engineering</a>
+  <a class="nav-back" href="/nicole#writing">&larr; Writing</a>
+</nav>
+
+<div class="post-wrap">
+
+  <div class="post-meta">
+    <div class="post-tag">Active Directory</div>
+    <h1 class="post-title">Flattening AD OU structure for an Entra ID future</h1>
+    <div class="post-byline">
+      <span>Nicole Miller</span>
+      <span>&middot;</span>
+      <span>Mad Miller Labs</span>
+    </div>
+  </div>
+
+  <div class="post-body">
+
+    <p>My original lab AD structure was built out of instinct and reinforced by what I&rsquo;ve witnessed across ten-plus years administering environments of all sizes. I had root-level OUs organized by department, with users, devices, and groups nested within. That approach felt natural, and it matched what I&rsquo;d seen work in production. One thing I knew going in: you never use the default containers. Anything sitting in the built-in Users or Computers container is an administrative liability waiting to happen.</p>
+
+    <p>Before I ran the restructure script, though, I started thinking about my current production environment and the goals on the horizon. The one that mattered here was our intent to move to Entra ID for identity management and step away from on-premises AD entirely. Line of sight to domain controllers has become a genuine obstacle in my professional life. We&rsquo;re contending with users who spend approximately five minutes in the office before jetting off to wherever it is they plan to be. So why would I subject my homelab and its imaginary userbase to the same constraints? And for that matter, why were we doing it this way in the first place?</p>
+
+    <p>The simplest answer is that Group Policy targeting was easiest when it was pointed at OUs. If you had a policy, like file server access and drive mapping, that was largely dependent on which department a user worked in, it was easier to create that OU and drop everyone who needed access into it. Access controls could be created and maintained with minimal overhead, and in the case of file shares in particular, enumerated ACLs handled the fine-grained permissions once the OU scoped the policy. It worked. For a long time it worked well.</p>
+
+    <hr>
+
+    <h2>Why Microsoft&rsquo;s guidance has shifted</h2>
+
+    <p>Microsoft&rsquo;s guidance on identity and access management has shifted decisively. Their own OU design documentation now points to two specific use cases for OU structure: delegation of administrative access, and application of the handful of Group Policies you may retain after moving into the cloud. That second point is worth sitting with. When Intune takes over policy delivery, policies target groups, not OUs. The department-driven OU hierarchy that made GPO management tractable suddenly has no remaining function for most user and device objects. What it does do is add maintenance overhead and create a structure that&rsquo;s harder to extend cleanly into a hybrid or cloud-first model. The security case is compelling too, and deserves its own post, but even from a pure operational standpoint the math stops working in favor of deep nesting.</p>
+
+    <hr>
+
+    <h2>The new structure</h2>
+
+    <p>The decision, then, was to flatten. In place of multiple nested OUs mirroring the org chart, the new structure distills down to four root-level OUs and twenty-one nested OUs. Administrative accounts live in their own segmented hierarchy where they belong. Everyone else, from CEO to receptionist, lands in <code>_Identity &gt; Users</code>. Coming from years of hyper-segmentation, it feels almost subversive. But even before your first cloud migration, you&rsquo;ll find it to be a more logical and defensible design.</p>
+
+    <figure class="post-figure">
+      <svg width="100%" viewBox="0 0 680 680" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <style>
+            text { font-family: ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, monospace; }
+            .label { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 13px; font-weight: 500; }
+            .tree { font-size: 11.5px; fill: #3d3d3a; }
+            .note { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 11px; fill: #5f5e5a; }
+            .panel-before { fill: #FAECE7; stroke: #993C1D; }
+            .panel-after  { fill: #E1F5EE; stroke: #0F6E56; }
+            .label-before { fill: #712B13; }
+            .label-after  { fill: #085041; }
+            .tree-before  { fill: #4A1B0C; }
+            .tree-after   { fill: #04342C; }
+            .note-box { fill: none; stroke: #B4B2A9; stroke-width: 0.5; stroke-dasharray: 3 2; }
+            .divider { stroke: #D3D1C7; stroke-width: 0.5; }
+            .annotation { fill: #888780; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 10.5px; }
+            @media (prefers-color-scheme: dark) {
+              .tree  { fill: #c2c0b6; }
+              .panel-before { fill: #4A1B0C; stroke: #F0997B; }
+              .panel-after  { fill: #04342C; stroke: #5DCAA5; }
+              .label-before { fill: #F5C4B3; }
+              .label-after  { fill: #9FE1CB; }
+              .tree-before  { fill: #F5C4B3; }
+              .tree-after   { fill: #9FE1CB; }
+              .note { fill: #888780; }
+              .note-box { stroke: #5F5E5A; }
+              .divider { stroke: #444441; }
+              .annotation { fill: #888780; }
+            }
+          </style>
+        </defs>
+
+        <!-- BEFORE panel header -->
+        <rect x="20" y="20" width="300" height="34" rx="8" class="panel-before" stroke-width="0.5"/>
+        <text x="170" y="37" text-anchor="middle" dominant-baseline="central" class="label label-before">Before &#x2014; org-chart driven</text>
+
+        <!-- Before tree -->
+        <text x="32" y="75"  class="tree tree-before">madmillerlabs.com</text>
+        <text x="32" y="95"  class="tree tree-before">&#x251C;&#x2500;&#x2500; _Identity</text>
+        <text x="32" y="113" class="tree tree-before">&#x2502;   &#x251C;&#x2500;&#x2500; Users</text>
+        <text x="32" y="131" class="tree tree-before">&#x2502;   &#x2502;   &#x251C;&#x2500;&#x2500; Executive</text>
+        <text x="32" y="149" class="tree tree-before">&#x2502;   &#x2502;   &#x251C;&#x2500;&#x2500; HR</text>
+        <text x="32" y="167" class="tree tree-before">&#x2502;   &#x2502;   &#x251C;&#x2500;&#x2500; Legal</text>
+        <text x="32" y="185" class="tree tree-before">&#x2502;   &#x2502;   &#x2514;&#x2500;&#x2500; InfoServices</text>
+        <text x="32" y="203" class="tree tree-before">&#x2502;   &#x2502;       &#x251C;&#x2500;&#x2500; Networking</text>
+        <text x="32" y="221" class="tree tree-before">&#x2502;   &#x2502;       &#x251C;&#x2500;&#x2500; Systems Eng</text>
+        <text x="32" y="239" class="tree tree-before">&#x2502;   &#x2502;       &#x251C;&#x2500;&#x2500; Developers</text>
+        <text x="32" y="257" class="tree tree-before">&#x2502;   &#x2502;       &#x2514;&#x2500;&#x2500; InfoSec</text>
+        <text x="32" y="275" class="tree tree-before">&#x2502;   &#x2514;&#x2500;&#x2500; Service Accounts</text>
+        <text x="32" y="300" class="tree tree-before">&#x251C;&#x2500;&#x2500; _Devices</text>
+        <text x="32" y="318" class="tree tree-before">&#x2502;   &#x251C;&#x2500;&#x2500; Workstations</text>
+        <text x="32" y="336" class="tree tree-before">&#x2502;   &#x2502;   &#x251C;&#x2500;&#x2500; Desktops</text>
+        <text x="32" y="354" class="tree tree-before">&#x2502;   &#x2502;   &#x2502;   &#x251C;&#x2500;&#x2500; Executive</text>
+        <text x="32" y="372" class="tree tree-before">&#x2502;   &#x2502;   &#x2502;   &#x2514;&#x2500;&#x2500; HR ...</text>
+        <text x="32" y="390" class="tree tree-before">&#x2502;   &#x2502;   &#x2514;&#x2500;&#x2500; Laptops</text>
+        <text x="32" y="408" class="tree tree-before">&#x2502;   &#x2502;       &#x251C;&#x2500;&#x2500; Executive</text>
+        <text x="32" y="426" class="tree tree-before">&#x2502;   &#x2502;       &#x2514;&#x2500;&#x2500; HR ...</text>
+        <text x="32" y="444" class="tree tree-before">&#x2502;   &#x2514;&#x2500;&#x2500; Servers</text>
+        <text x="32" y="469" class="tree tree-before">&#x251C;&#x2500;&#x2500; _Administration</text>
+        <text x="32" y="487" class="tree tree-before">&#x2502;   &#x2514;&#x2500;&#x2500; Tier0 / Tier1 / Tier2</text>
+        <text x="32" y="512" class="tree tree-before">&#x2514;&#x2500;&#x2500; _Groups</text>
+        <text x="32" y="530" class="tree tree-before">    &#x251C;&#x2500;&#x2500; Executive</text>
+        <text x="32" y="548" class="tree tree-before">    &#x251C;&#x2500;&#x2500; HR</text>
+        <text x="32" y="566" class="tree tree-before">    &#x251C;&#x2500;&#x2500; Legal</text>
+        <text x="32" y="584" class="tree tree-before">    &#x2514;&#x2500;&#x2500; InfoServices ...</text>
+
+        <!-- Before note -->
+        <rect x="32" y="600" width="280" height="20" rx="4" class="note-box"/>
+        <text x="172" y="610" text-anchor="middle" dominant-baseline="central" class="annotation">org chart mirrored in Users, Devices, and Groups</text>
+
+        <!-- Divider -->
+        <line x1="340" y1="16" x2="340" y2="636" class="divider"/>
+
+        <!-- AFTER panel header -->
+        <rect x="360" y="20" width="300" height="34" rx="8" class="panel-after" stroke-width="0.5"/>
+        <text x="510" y="37" text-anchor="middle" dominant-baseline="central" class="label label-after">After &#x2014; function driven</text>
+
+        <!-- After tree -->
+        <text x="372" y="75"  class="tree tree-after">madmillerlabs.com</text>
+        <text x="372" y="95"  class="tree tree-after">&#x251C;&#x2500;&#x2500; _Identity</text>
+        <text x="372" y="113" class="tree tree-after">&#x2502;   &#x251C;&#x2500;&#x2500; Users  &#x2190; flat, all staff</text>
+        <text x="372" y="131" class="tree tree-after">&#x2502;   &#x251C;&#x2500;&#x2500; Contacts</text>
+        <text x="372" y="149" class="tree tree-after">&#x2502;   &#x2514;&#x2500;&#x2500; Svc Accounts</text>
+        <text x="372" y="167" class="tree tree-after">&#x2502;       &#x251C;&#x2500;&#x2500; gMSA</text>
+        <text x="372" y="185" class="tree tree-after">&#x2502;       &#x2514;&#x2500;&#x2500; StandardSvc</text>
+        <text x="372" y="218" class="tree tree-after">&#x251C;&#x2500;&#x2500; _Devices</text>
+        <text x="372" y="236" class="tree tree-after">&#x2502;   &#x251C;&#x2500;&#x2500; Workstations</text>
+        <text x="372" y="254" class="tree tree-after">&#x2502;   &#x2502;   &#x251C;&#x2500;&#x2500; Desktops  &#x2190; no dept split</text>
+        <text x="372" y="272" class="tree tree-after">&#x2502;   &#x2502;   &#x2514;&#x2500;&#x2500; Laptops   &#x2190; no dept split</text>
+        <text x="372" y="290" class="tree tree-after">&#x2502;   &#x251C;&#x2500;&#x2500; Servers</text>
+        <text x="372" y="308" class="tree tree-after">&#x2502;   &#x2502;   &#x251C;&#x2500;&#x2500; Infrastructure</text>
+        <text x="372" y="326" class="tree tree-after">&#x2502;   &#x2502;   &#x251C;&#x2500;&#x2500; Application</text>
+        <text x="372" y="344" class="tree tree-after">&#x2502;   &#x2502;   &#x2514;&#x2500;&#x2500; FilePrint</text>
+        <text x="372" y="362" class="tree tree-after">&#x2502;   &#x2514;&#x2500;&#x2500; PAWs</text>
+        <text x="372" y="390" class="tree tree-after">&#x251C;&#x2500;&#x2500; _Administration</text>
+        <text x="372" y="408" class="tree tree-after">&#x2502;   &#x251C;&#x2500;&#x2500; Tier0  &#x2190; preserved by design</text>
+        <text x="372" y="426" class="tree tree-after">&#x2502;   &#x251C;&#x2500;&#x2500; Tier1  &#x2190; preserved by design</text>
+        <text x="372" y="444" class="tree tree-after">&#x2502;   &#x2514;&#x2500;&#x2500; Tier2  &#x2190; preserved by design</text>
+        <text x="372" y="469" class="tree tree-after">&#x2514;&#x2500;&#x2500; _Groups</text>
+        <text x="372" y="487" class="tree tree-after">    &#x251C;&#x2500;&#x2500; Access   &#x2190; SG-Access-*</text>
+        <text x="372" y="505" class="tree tree-after">    &#x251C;&#x2500;&#x2500; Policy   &#x2190; SG-Policy-*</text>
+        <text x="372" y="523" class="tree tree-after">    &#x251C;&#x2500;&#x2500; Role     &#x2190; SG-Role-*</text>
+        <text x="372" y="541" class="tree tree-after">    &#x2514;&#x2500;&#x2500; Distribution</text>
+
+        <!-- After notes -->
+        <rect x="372" y="557" width="280" height="20" rx="4" class="note-box"/>
+        <text x="512" y="567" text-anchor="middle" dominant-baseline="central" class="annotation">groups organized by function, not department</text>
+
+        <rect x="372" y="584" width="280" height="20" rx="4" class="note-box"/>
+        <text x="512" y="594" text-anchor="middle" dominant-baseline="central" class="annotation">tiered admin hierarchy intentionally unchanged</text>
+      </svg>
+      <figcaption>Everything that isn&rsquo;t a privileged account, a device, a group, or a service identity goes into _Identity &gt; Users. Full stop.</figcaption>
+    </figure>
+
+    <hr>
+
+    <h2>Access by group membership, not location</h2>
+
+    <p>In all of this design, however, I remembered exactly why I personally enjoyed the old OU design. At a glance, I could look at a user&rsquo;s object path and have a general idea of their workload. If Mabel Jenkins joins Mad Miller Labs as an HR Associate, I know that at minimum she would belong in the HR OU and be automatically granted rights that would make sense for her role. How could I scope access, rights and roles in such a way that made sense to Engineering and Help Desk?</p>
+
+    <p>Access instead is dictated by Security Group membership. In Mad Miller Labs, this translated to a nomenclature leveraging two prefixes, three functions and twelve scopes.</p>
+
+    <table class="sg-table">
+      <thead>
+        <tr><th>Prefix</th><th>Meaning</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>SG</td><td>Security Group</td></tr>
+        <tr><td>DL</td><td>Distribution List</td></tr>
+      </tbody>
+    </table>
+
+    <table class="sg-table">
+      <thead>
+        <tr><th>Function</th><th>Meaning</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Access</td><td>Grants permission to a resource</td></tr>
+        <tr><td>Policy</td><td>Controls GPO or configuration scope</td></tr>
+        <tr><td>Role</td><td>Delegates an administrative capability</td></tr>
+      </tbody>
+    </table>
+
+    <table class="sg-table">
+      <thead>
+        <tr><th>Scope</th><th>Meaning</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Global</td><td>Applies org-wide</td></tr>
+        <tr><td>InfoServices</td><td>IT Department</td></tr>
+        <tr><td>HelpDesk</td><td>Help Desk team</td></tr>
+        <tr><td>Systems</td><td>Systems Engineering</td></tr>
+        <tr><td>Networking</td><td>Networking team</td></tr>
+        <tr><td>Developers</td><td>Development team</td></tr>
+        <tr><td>HR</td><td>Human Resources</td></tr>
+        <tr><td>Legal</td><td>Legal</td></tr>
+        <tr><td>Marketing</td><td>Marketing</td></tr>
+        <tr><td>Engineering</td><td>Engineering</td></tr>
+        <tr><td>Executive</td><td>Executive Staff</td></tr>
+        <tr><td>Finance</td><td>Finance</td></tr>
+      </tbody>
+    </table>
+
+    <p>Using this as a blueprint, access can be scoped truly by focus and allows a more personalized experience:</p>
+
+    <div class="sg-examples">
+      <div class="sg-example">SG-Access-HR-FileShare-RO</div>
+      <div class="sg-example">SG-Access-Engineering-GitRepo-RW</div>
+      <div class="sg-example">SG-Access-Global-VPN</div>
+      <div class="sg-example">SG-Access-Executive-SharePoint-FC</div>
+    </div>
+
+    <p>The naming convention does what the OU path used to do, but in a form that travels. A Help Desk technician looking for every resource scoped to HR doesn&rsquo;t need to know the org chart, they search for <code>SG-Access-HR-*</code> and the answer is right there. Mabel Jenkins lands in <code>_Identity &gt; Users</code> like everyone else, and her access follows from group membership, not her location in the tree. That&rsquo;s actually easier to audit, easier to extend, and easier to explain to a security team.</p>
+
+    <hr>
+
+    <h2>Why this matters for Entra</h2>
+
+    <p>What this structure is really doing is separating two concerns that department-based OUs quietly conflated: where an object lives, and what it can do. The location used to carry meaning it was never designed to carry. Flattening forces that meaning into groups, where it was always more appropriate, and leaves the OU hierarchy to do the two things it was actually built for: administrative delegation and GPO scope.</p>
+
+    <p>When Entra Connect Sync enters the picture, this pays off immediately. Sync rules target OUs and group memberships. A clean, flat structure with well-named groups gives you precise control over what gets synced, to whom, and with what attributes. A department-driven hierarchy tends to produce sync configurations that are either too broad or painfully over-filtered, because the OU boundaries don&rsquo;t map cleanly to what Entra actually needs.</p>
+
+    <p>That migration is still on the horizon for Mad Miller Labs. But the structure is ready for it, and that was the point.</p>
+
+    <hr>
+
+    <p><em>This came up during the build-out of <a href="/" style="color:var(--accent);">Mad Miller Labs</a>, a home lab enterprise merger simulation running Nutanix CE 6.8.1 on a Dell PowerEdge R640. More posts from the build as the lab grows.</em></p>
+
+  </div>
+
+  <div class="post-footer">
+    <div class="post-footer-label">From the lab</div>
+    <a class="post-footer-link" href="/nicole#writing">&larr; Back to writing</a>
+  </div>
+
+</div>
+
+</body>
+</html>

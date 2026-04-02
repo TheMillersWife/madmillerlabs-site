@@ -1,0 +1,112 @@
+<svg width="100%" viewBox="0 0 680 680" xmlns="http://www.w3.org/2000/svg">
+<defs>
+  <style>
+    text { font-family: ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, monospace; }
+    .label { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 13px; font-weight: 500; }
+    .tree { font-size: 11.5px; fill: #3d3d3a; }
+    .note { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 11px; fill: #5f5e5a; }
+    .panel-before { fill: #FAECE7; stroke: #993C1D; }
+    .panel-after  { fill: #E1F5EE; stroke: #0F6E56; }
+    .label-before { fill: #712B13; }
+    .label-after  { fill: #085041; }
+    .tree-before  { fill: #4A1B0C; }
+    .tree-after   { fill: #04342C; }
+    .note-box { fill: none; stroke: #B4B2A9; stroke-width: 0.5; stroke-dasharray: 3 2; }
+    .divider { stroke: #D3D1C7; stroke-width: 0.5; }
+    .annotation { fill: #888780; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 10.5px; }
+    @media (prefers-color-scheme: dark) {
+      .tree  { fill: #c2c0b6; }
+      .panel-before { fill: #4A1B0C; stroke: #F0997B; }
+      .panel-after  { fill: #04342C; stroke: #5DCAA5; }
+      .label-before { fill: #F5C4B3; }
+      .label-after  { fill: #9FE1CB; }
+      .tree-before  { fill: #F5C4B3; }
+      .tree-after   { fill: #9FE1CB; }
+      .note { fill: #888780; }
+      .note-box { stroke: #5F5E5A; }
+      .divider { stroke: #444441; }
+      .annotation { fill: #888780; }
+    }
+  </style>
+</defs>
+
+<!-- BEFORE panel header -->
+<rect x="20" y="20" width="300" height="34" rx="8" class="panel-before" stroke-width="0.5"/>
+<text x="170" y="37" text-anchor="middle" dominant-baseline="central" class="label label-before">Before — org-chart driven</text>
+
+<!-- Before tree -->
+<text x="32" y="75"  class="tree tree-before">madmillerlabs.com</text>
+<text x="32" y="95"  class="tree tree-before">├── _Identity</text>
+<text x="32" y="113" class="tree tree-before">│   ├── Users</text>
+<text x="32" y="131" class="tree tree-before">│   │   ├── Executive</text>
+<text x="32" y="149" class="tree tree-before">│   │   ├── HR</text>
+<text x="32" y="167" class="tree tree-before">│   │   ├── Legal</text>
+<text x="32" y="185" class="tree tree-before">│   │   └── InfoServices</text>
+<text x="32" y="203" class="tree tree-before">│   │       ├── Networking</text>
+<text x="32" y="221" class="tree tree-before">│   │       ├── Systems Eng</text>
+<text x="32" y="239" class="tree tree-before">│   │       ├── Developers</text>
+<text x="32" y="257" class="tree tree-before">│   │       └── InfoSec</text>
+<text x="32" y="275" class="tree tree-before">│   └── Service Accounts</text>
+<text x="32" y="300" class="tree tree-before">├── _Devices</text>
+<text x="32" y="318" class="tree tree-before">│   ├── Workstations</text>
+<text x="32" y="336" class="tree tree-before">│   │   ├── Desktops</text>
+<text x="32" y="354" class="tree tree-before">│   │   │   ├── Executive</text>
+<text x="32" y="372" class="tree tree-before">│   │   │   └── HR ...</text>
+<text x="32" y="390" class="tree tree-before">│   │   └── Laptops</text>
+<text x="32" y="408" class="tree tree-before">│   │       ├── Executive</text>
+<text x="32" y="426" class="tree tree-before">│   │       └── HR ...</text>
+<text x="32" y="444" class="tree tree-before">│   └── Servers</text>
+<text x="32" y="469" class="tree tree-before">├── _Administration</text>
+<text x="32" y="487" class="tree tree-before">│   └── Tier0 / Tier1 / Tier2</text>
+<text x="32" y="512" class="tree tree-before">└── _Groups</text>
+<text x="32" y="530" class="tree tree-before">    ├── Executive</text>
+<text x="32" y="548" class="tree tree-before">    ├── HR</text>
+<text x="32" y="566" class="tree tree-before">    ├── Legal</text>
+<text x="32" y="584" class="tree tree-before">    └── InfoServices ...</text>
+
+<!-- Before note -->
+<rect x="32" y="600" width="280" height="20" rx="4" class="note-box"/>
+<text x="172" y="610" text-anchor="middle" dominant-baseline="central" class="annotation">org chart mirrored in Users, Devices, and Groups</text>
+
+<!-- Divider -->
+<line x1="340" y1="16" x2="340" y2="636" class="divider"/>
+
+<!-- AFTER panel header -->
+<rect x="360" y="20" width="300" height="34" rx="8" class="panel-after" stroke-width="0.5"/>
+<text x="510" y="37" text-anchor="middle" dominant-baseline="central" class="label label-after">After — function driven</text>
+
+<!-- After tree -->
+<text x="372" y="75"  class="tree tree-after">madmillerlabs.com</text>
+<text x="372" y="95"  class="tree tree-after">├── _Identity</text>
+<text x="372" y="113" class="tree tree-after">│   ├── Users  ← flat, all staff</text>
+<text x="372" y="131" class="tree tree-after">│   ├── Contacts</text>
+<text x="372" y="149" class="tree tree-after">│   └── Svc Accounts</text>
+<text x="372" y="167" class="tree tree-after">│       ├── gMSA</text>
+<text x="372" y="185" class="tree tree-after">│       └── StandardSvc</text>
+<text x="372" y="218" class="tree tree-after">├── _Devices</text>
+<text x="372" y="236" class="tree tree-after">│   ├── Workstations</text>
+<text x="372" y="254" class="tree tree-after">│   │   ├── Desktops  ← no dept split</text>
+<text x="372" y="272" class="tree tree-after">│   │   └── Laptops   ← no dept split</text>
+<text x="372" y="290" class="tree tree-after">│   ├── Servers</text>
+<text x="372" y="308" class="tree tree-after">│   │   ├── Infrastructure</text>
+<text x="372" y="326" class="tree tree-after">│   │   ├── Application</text>
+<text x="372" y="344" class="tree tree-after">│   │   └── FilePrint</text>
+<text x="372" y="362" class="tree tree-after">│   └── PAWs</text>
+<text x="372" y="390" class="tree tree-after">├── _Administration</text>
+<text x="372" y="408" class="tree tree-after">│   ├── Tier0  ← preserved by design</text>
+<text x="372" y="426" class="tree tree-after">│   ├── Tier1  ← preserved by design</text>
+<text x="372" y="444" class="tree tree-after">│   └── Tier2  ← preserved by design</text>
+<text x="372" y="469" class="tree tree-after">└── _Groups</text>
+<text x="372" y="487" class="tree tree-after">    ├── Access   ← SG-Access-*</text>
+<text x="372" y="505" class="tree tree-after">    ├── Policy   ← SG-Policy-*</text>
+<text x="372" y="523" class="tree tree-after">    ├── Role     ← SG-Role-*</text>
+<text x="372" y="541" class="tree tree-after">    └── Distribution</text>
+
+<!-- After notes -->
+<rect x="372" y="557" width="280" height="20" rx="4" class="note-box"/>
+<text x="512" y="567" text-anchor="middle" dominant-baseline="central" class="annotation">groups organized by function, not department</text>
+
+<rect x="372" y="584" width="280" height="20" rx="4" class="note-box"/>
+<text x="512" y="594" text-anchor="middle" dominant-baseline="central" class="annotation">tiered admin hierarchy intentionally unchanged</text>
+
+</svg>
